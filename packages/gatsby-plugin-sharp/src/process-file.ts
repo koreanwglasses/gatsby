@@ -35,7 +35,7 @@ export const processFile = async (
   let pipeline
   try {
     const inputBuffer = await fs.readFile(file)
-    pipeline = sharp(inputBuffer, { failOn: options.failOn })
+    pipeline = sharp(inputBuffer, { failOn: options.failOn, animated: true })
 
     // Keep Metadata
     if (!options.stripMetadata) {
