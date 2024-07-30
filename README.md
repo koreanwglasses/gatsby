@@ -1,165 +1,355 @@
-<p align="center">
-  <a href="https://www.gatsbyjs.com">
-    <img alt="Gatsby" src="https://www.gatsbyjs.com/Gatsby-Monogram.svg" width="60" />
-  </a>
-</p>
-<h1 align="center">
-  Gatsby
-</h1>
+# gatsby-plugin-sharp
 
-<p align="center">
-  <strong>
-    The future of web development is here.
-  </strong>
-</p>
-<p align="center">
-  Gatsby is a free and open source framework based on React that helps developers build blazing fast websites and apps. </br> It combines the control and scalability of dynamically rendered sites with the speed of static-site generation, creating a whole new web of possibilities.
-</p>
-<p align="center">
-  <a href="https://github.com/gatsbyjs/gatsby/blob/master/LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="Gatsby is released under the MIT license." />
-  </a>
-  <a href="https://circleci.com/gh/gatsbyjs/gatsby">
-    <img src="https://circleci.com/gh/gatsbyjs/gatsby.svg?style=shield" alt="Current CircleCI build status." />
-  </a>
-  <a href="https://www.npmjs.com/package/gatsby">
-    <img src="https://img.shields.io/npm/v/gatsby.svg" alt="Current npm package version." />
-  </a>
-  <a href="https://npmcharts.com/compare/gatsby?minimal=true">
-    <img src="https://img.shields.io/npm/dm/gatsby.svg" alt="Downloads per month on npm." />
-  </a>
-  <a href="https://npmcharts.com/compare/gatsby?minimal=true">
-    <img src="https://img.shields.io/npm/dt/gatsby.svg" alt="Total downloads on npm." />
-  </a>
-  <a href="https://gatsbyjs.com/contributing/how-to-contribute/">
-    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs welcome!" />
-  </a>
-  <a href="https://twitter.com/intent/follow?screen_name=gatsbyjs">
-    <img src="https://img.shields.io/twitter/follow/gatsbyjs.svg?label=Follow%20@gatsbyjs" alt="Follow @GatsbyJS" />
-  </a>
-</p>
+Exposes several image processing functions built on the
+[Sharp image processing library](https://github.com/lovell/sharp). This is a
+low-level helper plugin generally used by other Gatsby plugins. You generally
+shouldn't be using this directly but might find it helpful if doing very custom
+image processing.
 
-<h2 align="center">
-  <a href="https://www.gatsbyjs.com/docs/quick-start/">Quickstart</a>
-  <span> · </span>
-  <a href="https://www.gatsbyjs.com/docs/tutorial/getting-started/">Tutorial</a>
-  <span> · </span>
-  <a href="https://www.gatsbyjs.com/plugins/">Plugins</a>
-  <span> · </span>
-  <a href="https://www.gatsbyjs.com/starters/">Starters</a>
-  <span> · </span>
-  <a href="https://www.gatsbyjs.com/showcase/">Showcase</a>
-  <span> · </span>
-  <a href="https://www.gatsbyjs.com/contributing/how-to-contribute/">Contribute</a>
-  <br />
-  Support: <a href="https://twitter.com/AskGatsbyJS">Twitter</a>, <a href="https://github.com/gatsbyjs/gatsby/discussions">Discussions</a>
-  <span> & </span>
-  <a href="https://gatsby.dev/discord">Discord</a>
-</h2>
+It aims to provide excellent out-of-the box settings for processing common web
+image formats.
 
-Gatsby helps professional developers efficiently create maintainable, highly-performant, content-rich websites.
+For JPEGs it generates progressive images with a default quality level of 50.
 
-- **Load Data From Anywhere.** Gatsby pulls in data from any data source, whether it’s Markdown files, a headless CMS like Contentful or WordPress, or a REST or GraphQL API. Use source plugins to load your data, then develop using Gatsby’s uniform GraphQL interface.
+For PNGs it uses [pngquant](https://github.com/pornel/pngquant) to compress
+images. By default it uses a quality setting of [50-75]. The `pngCompressionSpeed`
+value is a speed/quality trade-off from 1 (brute-force) to 10 (fastest). Speed
+10 has 5% lower quality, but is 8 times faster than the default (4). In most
+cases you should stick with the default, but if you have very large numbers
+of PNGs then it can significantly reduce build times.
 
-- **Go Beyond Static Websites.** Get all the benefits of static websites with none of the limitations. Gatsby sites are fully functional React apps, so you can create high-quality, dynamic web apps, from blogs to e-commerce sites to user dashboards.
+## Install
 
-- **Choose your Rendering Options.** You can choose alternative [rendering options](https://gatsbyjs.com/docs/conceptual/rendering-options/), namely Deferred Static Generation (DSG) and Server-Side Rendering (SSR), in addition to Static Site Generation (SSG) — on a per-page basis. This type of granular control allows you to optimize for performance and productivity without sacrificing one for the other.
+```shell
+npm install gatsby-plugin-sharp
+```
 
-- **Performance Is Baked In.** Ace your performance audits by default. Gatsby automates code splitting, image optimization, inlining critical styles, lazy-loading, prefetching resources, and more to ensure your site is fast — no manual tuning required.
+## How to use
 
-- **Use a Modern Stack for Every Site.** No matter where the data comes from, Gatsby sites are built using React and GraphQL. Build a uniform workflow for you and your team, regardless of whether the data is coming from the same backend.
+```js:title=gatsby-config.js
+module.exports = {
+  plugins: [
+    {
+      resolve: `gatsby-plugin-sharp`,
+      options: {
+        // Defaults used for gatsbyImageData and StaticImage
+        defaults: {},
+        // Relates to "options.failOn" in https://sharp.pixelplumbing.com/api-constructor#parameters
+        failOn: `warning`,
+      },
+    },
+  ]
+}
+```
 
-- **Host at Scale for Pennies.** Gatsby sites don’t require servers, so you can host your entire site on a CDN for a fraction of the cost of a server-rendered site. Many Gatsby sites can be hosted entirely free on [Gatsby Cloud](https://www.gatsbyjs.com/cloud/) and other similar services.
+## Options
 
-- **Use Gatsby's Centralized Data Layer Everywhere.** With Gatsby's [Valhalla Content Hub](https://www.gatsbyjs.com/products/valhalla-content-hub/) you can bring Gatsby's data layer to any project. Making it accessible via a unified GraphQL API for building content sites, eCommerce platforms, and both native and web applications.
+- `defaults`: Default values used for `gatsbyImageData` and `StaticImage` from [gatsby-plugin-image](https://www.gatsbyjs.com/plugins/gatsby-plugin-image).
+  Available options are: `formats`,`placeholder`,`quality`,`breakpoints`,`backgroundColor`,`tracedSVGOptions`,`blurredOptions`,`jpgOptions`,`pngOptions`,`webpOptions`,`avifOptions`.
+  For details of these, see [the reference guide](https://www.gatsbyjs.com/docs/reference/built-in-components/gatsby-plugin-image).
+- `failOn`: default = `warning`. By default, builds will fail if sharp finds an image with corrupted pixel values. When setting `failOn` to `none` the image will return `undefined` instead. You can customize this option, see [`options.failOn`](https://sharp.pixelplumbing.com/api-constructor#parameters). Images with corrupt image headers/metadata will always fail, regardless of this setting.
 
-[**Learn how to use Gatsby for your next project.**](https://www.gatsbyjs.com/docs/)
+## Methods
 
-## 🚀 Ship your first Gatsby site in 5 Minutes
+### resize
 
-Click the link below to quickly try the workflow of developing, building, and deploying websites with Gatsby and Gatsby Cloud.
+#### Parameters
 
-[<img src="https://www.gatsbyjs.com/deploynow.svg" alt="Deploy to Gatsby Cloud">](https://www.gatsbyjs.com/dashboard/deploynow?url=https://github.com/gatsbyjs/gatsby-starter-blog&utm_source=github&utm_medium=link&utm_campaign=onboarding&utm_content=oss)
+- `width` (int, default: 400)
+- `height` (int)
+- `quality` (int, default: 50)
+- `jpegQuality` (int)
+- `pngQuality` (int)
+- `webpQuality` (int)
+- `jpegProgressive` (bool, default: true)
+- `pngCompressionLevel` (int, default: 9)
+- `base64`(bool, default: false)
 
-At the end of this process, you'll have
+#### Returns
 
-1. a site working on Gatsby Cloud
-2. a new repository that is linked to that new site
-3. as you push changes to your new repository, Gatsby Cloud will automatically rebuild and redeploy your site!
+- `src` (string)
+- `width` (int)
+- `height` (int)
+- `aspectRatio` (float)
 
-## 💻 Get started with Gatsby locally in 5 Minutes
+### fixed
 
-You can get a new Gatsby site up and running on your local dev environment in 5 minutes with these four steps:
+Automatically create sizes for different resolutions — we do 1x, 1.5x, and 2x.
 
-1. **Initialize a new project.**
+#### Parameters
 
-   ```shell
-   npm init gatsby
-   ```
+- `width` (int, default: 400)
+- `height` (int)
+- `quality` (int, default: 50)
+- `jpegQuality` (int)
+- `pngQuality` (int)
+- `webpQuality` (int)
 
-   Give it the name "My Gatsby Site".
+#### Returns
 
-2. **Start the site in `develop` mode.**
+- `base64` (string)
+- `aspectRatio` (float)
+- `width` (float)
+- `height` (float)
+- `src` (string)
+- `srcSet` (string)
 
-   Next, move into your new site’s directory and start it up:
+### fluid
 
-   ```shell
-   cd my-gatsby-site/
-   npm run develop
-   ```
+Create fluid sizes (in width) for the image. If the max width of the container for the
+rendered markdown file is 800px, the sizes would then be: 200px, 400px, 800px, 1200px,
+1600px – enough to provide close to the optimal image size for every device
+size / screen resolution.
 
-3. **Open the source code and start editing!**
+If you want more control over which sizes are output you can use the `srcSetBreakpoints`
+parameter. For example, if you want images that are 200, 340, 520, and 890 wide you
+can add `srcSetBreakpoints: [ 200, 340, 520, 890 ]` as a parameter. You will also get
+`maxWidth` as a breakpoint (which is 800 by default), so you will actually get
+`[ 200, 340, 520, 800, 890 ]` as breakpoints.
 
-   Your site is now running at `http://localhost:8000`. Open the `my-gatsby-site` directory in your code editor of choice and edit `src/pages/index.js`. Save your changes, and the browser will update in real time!
+On top of that, `fluid` returns everything else (namely aspectRatio and
+a base64 image to use as a placeholder) you need to implement the "blur up"
+technique popularized by Medium and Facebook (and also available as a Gatsby
+plugin for Markdown content as gatsby-remark-images).
 
-At this point, you’ve got a fully functional Gatsby website. For additional information on how you can customize your Gatsby site, see our [plugins](https://gatsbyjs.com/plugins/) and [the official tutorial](https://www.gatsbyjs.com/docs/tutorial/getting-started/).
+When both a `maxWidth` and `maxHeight` are provided, sharp will [resize the image][6] using
+`COVER` as a fit strategy by default. You can choose between `COVER`, `CONTAIN`, `FILL`,
+`INSIDE`, and `OUTSIDE` as a fit strategy. See the [fit parameter below](#fit)
+for more details.
 
-## 🎓 Learning Gatsby
+#### Parameters
 
-Full documentation for Gatsby lives [on the website](https://www.gatsbyjs.com/).
+- `maxWidth` (int, default: 800)
+- `maxHeight` (int)
+- `quality` (int, default: 50)
+- `jpegQuality` (int)
+- `pngQuality` (int)
+- `webpQuality` (int)
+- `srcSetBreakpoints` (array of int, default: [])
+- `background` (string, default: 'rgba(0,0,0,1)')
 
-- **For most developers, we recommend starting with our [in-depth tutorial for creating a site with Gatsby](https://www.gatsbyjs.com/docs/tutorial/getting-started/).** It starts with zero assumptions about your level of ability and walks through every step of the process.
+#### Returns
 
-- **To dive straight into code samples head [to our documentation](https://www.gatsbyjs.com/docs/).** In particular, check out the “<i>How-to Guides</i>”, “<i>Reference</i>”, and “<i>Conceptual Guides</i>” sections in the sidebar.
+- `base64` (string)
+- `aspectRatio` (float)
+- `src` (string)
+- `srcSet` (string)
+- `srcSetType` (string)
+- `sizes` (string)
+- `originalImg` (string)
 
-We welcome suggestions for improving our docs. See the [“how to contribute”](https://www.gatsbyjs.com/contributing/how-to-contribute/) documentation for more details.
+### Shared Options
 
-**Start Learning Gatsby: [Follow the Tutorial](https://www.gatsbyjs.com/docs/tutorial/getting-started/) · [Read the Docs](https://www.gatsbyjs.com/docs/)**
+In addition to their individual parameters, all methods above share the
+following:
 
-## 🚢 Release Notes
+- `grayscale` (bool, default: false)
+- `duotone` (bool|obj, default: false)
+- `toFormat` (string, default: '')
+- `toFormatBase64` (string, default: '')
+- `base64Width` (int, default: 20)
+- `cropFocus` (string, default: 'ATTENTION')
+- `fit` (string, default: 'COVER')
+- `pngCompressionSpeed` (int, default: 4)
+- `rotate` (int, default: 0)
 
-Wondering what we've shipped recently? Check out our [release notes](https://www.gatsbyjs.com/docs/reference/release-notes) for key highlights, performance improvements, new features, and notable bugfixes.
+#### toFormat
 
-Also, read our [documentation on version support](https://www.gatsbyjs.com/docs/reference/release-notes/gatsby-version-support/) to understand our plans for each version of Gatsby.
+Convert the source image to one of the following available options: `NO_CHANGE`,
+`JPG`, `PNG`, `WEBP`.
 
-## 💼 Migration Guides
+#### toFormatBase64
 
-Already have a Gatsby site? These handy guides will help you add the improvements of Gatsby v5 to your site without starting from scratch!
+base64 image uses the image format from the source, or the value of `toFormat`. This setting allows a different image format instead, available options are: `JPG`, `PNG`, `WEBP`.
 
-- [Migrate from v4 to v5](https://www.gatsbyjs.com/docs/reference/release-notes/migrating-from-v4-to-v5/)
-- [Migrate from v3 to v4](https://www.gatsbyjs.com/docs/reference/release-notes/migrating-from-v3-to-v4/)
-- [Migrate from v2 to v3](https://www.gatsbyjs.com/docs/reference/release-notes/migrating-from-v2-to-v3/)
+`WEBP` allows for a smaller data size, allowing you to reduce your HTML size when transferring over the network, or to use a larger base64 placeholder width default for improved image placeholder quality.
 
-## ❗ Code of Conduct
+[Not all browsers support `WEBP`](https://caniuse.com/#feat=webp). It would be wasteful to include a fallback image format in this case. Consider also adding a `backgroundColor` placeholder as a fallback instead.
 
-Gatsby is dedicated to building a welcoming, diverse, safe community. We expect everyone participating in the Gatsby community to abide by our [**Code of Conduct**](https://www.gatsbyjs.com/contributing/code-of-conduct/). Please read it. Please follow it. In the Gatsby community, we work hard to build each other up and create amazing things together. 💪💜
+The plugin config option `forceBase64Format` performs the equivalent functionality by default to all your base64 placeholders. `toFormatBase64` has a higher priority for base64 images that need to selectively use a different format.
 
-## 🤝 How to Contribute
+#### base64Width
 
-Whether you're helping us fix bugs, improve the docs, or spread the word, we'd love to have you as part of the Gatsby community!
+The width in pixels for your base64 placeholder to use. The height will also be adjusted based on the aspect ratio of the image. Use this to increase the image quality by allowing more pixels to be used at the expense of increasing the file size of the data to be transferred.
 
-Check out our [**Contributing Guide**](https://www.gatsbyjs.com/contributing/how-to-contribute/) for ideas on contributing and setup steps for getting our repositories up and running on your local machine.
+The default for Gatsby is `20`px. This keeps the data size low enough to embed into the HTML document for immediate display on DOM loaded and avoids an additional network request.
 
-### A note on how this repository is organized
+[Facebook](https://engineering.fb.com/android/the-technology-behind-preview-photos/) and [Medium](https://jmperezperez.com/medium-image-progressive-loading-placeholder/) are both known to use `42`px width for their image placeholders. However Medium presently uses a solid background color placeholder to load the page as fast as possible, followed by an image placeholder requested over the network instead of embedding it with base64.
 
-This repository is a [monorepo](https://trunkbaseddevelopment.com/monorepos/) managed using [Lerna](https://github.com/lerna/lerna). This means there are [multiple packages](https://github.com/gatsbyjs/gatsby/tree/master/packages) managed in this codebase, even though we publish them to NPM as separate packages.
+The plugin config has an equivalent option, allowing you to change the default for all base64 placeholders. This parameter option has a higher priority over the plugin config option.
 
-## 📝 License
+#### cropFocus
 
-Licensed under the [MIT License](./LICENSE).
+Change the cropping focus. Available options: `CENTER`, `NORTH`, `NORTHEAST`,
+`EAST`, `SOUTHEAST`, `SOUTH`, `SOUTHWEST`, `WEST`, `NORTHWEST`, `ENTROPY`,
+`ATTENTION`. See Sharp's [resize][6].
 
-## 💜 Thanks
+#### fit
 
-Thanks go out to all our many contributors creating plugins, starters, videos, and blog posts. And a special appreciation for our community members helping with issues and PRs, or answering questions on Discord and GitHub Discussions.
+Select the fit strategy for sharp to use when resizing images. Available options
+are: `COVER`, `CONTAIN`, `FILL`, `INSIDE`, `OUTSIDE`. See Sharp's [resize][6].
 
-A big part of what makes Gatsby great is each and every one of you in the community. Your contributions enrich the Gatsby experience and make it better every day.
+**Note:** The fit strategies `CONTAIN` and `FILL` will not work when `cropFocus` is
+set to `ENTROPY` or `ATTENTION`.
+
+The following image shows the effects of each fit option. You can see that the
+`INSIDE` option results in one dimension being smaller than requested, while
+the `OUTSIDE` option results in one dimension being larger than requested.
+![Sharp transform fit options](./sharp-transform-fit-options.png)
+
+#### pngCompressionSpeed
+
+Change the speed/quality tradeoff for PNG compression from 1 (brute-force) to
+10 (fastest). See pngquant's [options][19].
+
+#### rotate
+
+Rotate the image (after cropping). See Sharp's [rotate][7].
+
+#### grayscale
+
+Uses Sharp's [grayscale][8] to convert the source image to 8-bit grayscale, 256
+shades of gray, e.g.
+
+```graphql
+allImageSharp {
+  edges {
+    node {
+      ... on ImageSharp {
+        resize(width: 150, height: 150, grayscale: true) {
+          src
+        }
+      }
+    }
+  }
+}
+```
+
+#### duotone
+
+Applys a "duotone" effect (see [I][1], [II][2], [III][3]) to the source image if
+given two hex colors `shadow` and `highlight` defining start and end color of
+the duotone gradient, e.g.
+
+```graphql
+fixed(
+  width: 800,
+  duotone: {
+    highlight: "#f00e2e",
+    shadow: "#192550"
+  }
+) {
+  src
+  srcSet
+  base64
+}
+```
+
+the source image colors will be converted to match a gradient color chosen based
+on each pixel's [relative luminance][4].\
+Logic is borrowed from [react-duotone][5].
+
+You can pass a third optional parameter, `opacity`:
+
+```graphql
+fluid(
+  width: 800,
+  duotone: {
+    highlight: "#f00e2e",
+    shadow: "#192550",
+    opacity: 50
+  }
+) {
+  src
+  srcSet
+  base64
+}
+```
+
+If set, a semi-transparent version of duotone'd image will be composited over
+the original image, allowing the original image and its colors to partially
+"shine through". _Heads up_: If the original image contains an alpha channel it
+will be [flattened][15] before creating the composite.
+
+This works by adding an alpha channel to the duotone'd image - then we let Sharp
+do its magic via
+[`overlayWith`](http://sharp.pixelplumbing.com/en/stable/api-composite/#overlaywith);
+quoting the Sharp documentation:
+
+> If the overlay image contains an alpha channel then composition with
+> <a href="https://en.wikipedia.org/wiki/Alpha_compositing">premultiplication</a>
+> will occur.
+
+### Setting sharp's level of sensitivity to invalid images
+
+By default, the build will fail when sharp encounters an error while processing an image. You can change parts of this behavior by changing the `failOn` setting to `none`. In that case sharp will then ignore any errors relating to the pixel values/file structure of your file. However, if your image has corrupt image headers/metadata the build will still fail. It is important to note that any images that would have otherwise failed will not be accessible via `childImageSharp` until the underlying issue with the image is addressed.
+
+### EXIF and ICC metadata
+
+By default, `gatsby-plugin-sharp` strips all EXIF, ICC and other metadata
+present in your source file. This is the recommended default as it leads to
+smaller file sizes.
+
+However, in situations where you wish to preserve EXIF metadata or ICC profiles
+(example: you are building a photography portfolio and wish to conserve
+the color profile or the copyright information of the photos you've exported
+from Adobe Lightroom or Phase One's Capture One), you can set the `stripMetadata`
+plugin option to `false` in `gatsby-config.js`.
+
+It is important to note that if `stripMetadata` is set to `false`, **all**
+metadata information will be preserved from the source image, including but not
+limited to the latitude/longitude information of where the picture was taken
+(if present). If you wish to strip this information from the source file, you
+can either leave `stripMetadata` to its default of `true`, or manually
+pre-process your images with a tool such as [ExifTool][17].
+
+## Troubleshooting
+
+### Incompatible library version: sharp.node requires version X or later, but Z provides version Y
+
+This means that there are multiple incompatible versions of the `sharp` package installed in `node_modules`. The complete error typically looks like this:
+
+```text
+Something went wrong installing the "sharp" module
+
+dlopen(/Users/misiek/dev/gatsby-starter-blog/node_modules/sharp/build/Release/sharp.node, 1): Library not loaded: @rpath/libglib-2.0.dylib
+  Referenced from: /Users/misiek/dev/gatsby-starter-blog/node_modules/sharp/build/Release/sharp.node
+  Reason: Incompatible library version: sharp.node requires version 6001.0.0 or later, but libglib-2.0.dylib provides version 5801.0.0
+```
+
+To fix this, you'll need to update all Gatsby plugins in the current project that depend on the `sharp` package. Here's a list of official plugins that you might need to update in case your projects uses them:
+
+- `gatsby-plugin-sharp`
+- `gatsby-plugin-manifest`
+- `gatsby-remark-images-contentful`
+- `gatsby-source-contentful`
+- `gatsby-transformer-sharp`
+- `gatsby-transformer-sqip`
+
+To update these packages, run:
+
+```shell
+npm install gatsby-plugin-sharp gatsby-plugin-manifest gatsby-remark-images-contentful gatsby-source-contentful gatsby-transformer-sharp gatsby-transformer-sqip
+```
+
+If updating these doesn't fix the issue, your project probably uses other plugins from the community that depend on a different version of `sharp`. Try running `npm list sharp` or `yarn why sharp` to see all packages in the current project that use `sharp` and try updating them as well.
+
+[1]: https://alistapart.com/article/finessing-fecolormatrix
+[2]: http://blog.72lions.com/blog/2015/7/7/duotone-in-js
+[3]: https://ines.io/blog/dynamic-duotone-svg-jade
+[4]: https://en.wikipedia.org/wiki/Relative_luminance
+[5]: https://github.com/nagelflorian/react-duotone
+[6]: http://sharp.pixelplumbing.com/en/stable/api-resize/#crop
+[7]: http://sharp.pixelplumbing.com/en/stable/api-operation/#rotate
+[8]: http://sharp.pixelplumbing.com/en/stable/api-colour/#greyscale
+[9]: https://github.com/gatsbyjs/gatsby/issues/2435
+[10]: https://codepen.io/tigt/post/optimizing-svgs-in-data-uris
+[11]: https://github.com/tooolbox/node-potrace
+[12]: https://github.com/svg/svgo
+[13]: https://github.com/tooolbox/node-potrace#parameters
+[14]: https://github.com/oliver-moran/jimp
+[15]: http://sharp.pixelplumbing.com/en/stable/api-operation/#flatten
+[16]: https://github.com/mozilla/mozjpeg
+[17]: https://www.sno.phy.queensu.ca/~phil/exiftool/
+[18]: https://www.npmjs.com/package/color
+[19]: https://pngquant.org/#options
